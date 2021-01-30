@@ -98,7 +98,12 @@
           "sn": "",
           "title": "",
           "biz": "",
-          "queryParam": {}
+          "queryParam": {},
+          "points": [
+            {
+              "id": 223
+            }
+          ]
         },
         "style": {
           "position": {

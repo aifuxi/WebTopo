@@ -4,13 +4,13 @@
         <div
             tabindex="0"
             id="surface-edit-layer"
-            class="topo-layer"                            
+            class="topo-layer"
             :class="{'topo-layer-view-selected': selectedIsLayer}"
             :style="layerStyle"
-            @click="onLayerClick($event)" 
-            @mouseup="onLayerMouseup($event)" 
-            @mousemove="onLayerMousemove($event)" 
-            @mousedown="onLayerMousedown($event)" 
+            @click="onLayerClick($event)"
+            @mouseup="onLayerMouseup($event)"
+            @mousemove="onLayerMousemove($event)"
+            @mousedown="onLayerMousedown($event)"
             @keyup.delete="removeItem()"
             @dragover.prevent
             @drop="onDrop"
@@ -19,22 +19,22 @@
             @keydown.ctrl.90.stop="undo"
             @keydown.ctrl.89.stop="redo">
             <template v-for="(component,index) in configData.components">
-                <div  
+                <div
                      :key="component.identifier"
                      tabindex="0"
                      class="topo-layer-view"
-                     :class="{'topo-layer-view-selected': selectedComponentMap[component.identifier] == undefined? false:true }" 
+                     :class="{'topo-layer-view-selected': selectedComponentMap[component.identifier] == undefined? false:true }"
                      @click.stop="clickComponent(index,component,$event)"
                      @mousedown.stop="controlMousedown(component,$event,index)"
                      @keyup.delete="removeItem()"
                      @keydown.up.exact.prevent="moveItems('up')"
                      @keydown.right.exact.prevent="moveItems('right')"
                      @keydown.down.exact.prevent="moveItems('down')"
-                     @keydown.left.exact.prevent="moveItems('left')"                                     
+                     @keydown.left.exact.prevent="moveItems('left')"
                      @keydown.ctrl.67.stop="copyItem"
                      @keydown.ctrl.86.stop="pasteItem"
                      @keydown.ctrl.90.stop="undo"
-                     @keydown.ctrl.89.stop="redo"                     
+                     @keydown.ctrl.89.stop="redo"
                      :style="{
                             left: component.style.position.x + 'px',
                             top: component.style.position.y + 'px',
@@ -47,7 +47,7 @@
                             borderColor: component.style.borderColor,
                             transform: component.style.transform? `rotate(${component.style.transform}deg)`:'rotate(0deg)',
                         }">
-                    <component v-bind:is="parseView(component)" :detail="component" :editMode="true" :selected="selectedComponentMap[component.identifier]?true:false" :ref="'comp' + index"/>                                    
+                    <component v-bind:is="parseView(component)" :detail="component" :editMode="true" :selected="selectedComponentMap[component.identifier]?true:false" :ref="'comp' + index"/>
                     <div @mousedown.stop="resizeMousedown(component,$event,index,'resize-lt')" v-show="selectedComponentMap[component.identifier]" class="resize-left-top"></div>
                     <div @mousedown.stop="resizeMousedown(component,$event,index,'resize-lc')" v-show="selectedComponentMap[component.identifier]" class="resize-left-center"></div>
                     <div @mousedown.stop="resizeMousedown(component,$event,index,'resize-lb')" v-show="selectedComponentMap[component.identifier]" class="resize-left-bottom"></div>
@@ -56,6 +56,11 @@
                     <div @mousedown.stop="resizeMousedown(component,$event,index,'resize-rb')" v-show="selectedComponentMap[component.identifier]" class="resize-right-bottom"></div>
                     <div @mousedown.stop="resizeMousedown(component,$event,index,'resize-ct')" v-show="selectedComponentMap[component.identifier]" class="resize-center-top"></div>
                     <div @mousedown.stop="resizeMousedown(component,$event,index,'resize-cb')" v-show="selectedComponentMap[component.identifier]" class="resize-center-bottom"></div>
+
+                  <!-- 吸附点 -->
+                  <template v-if="component.type === 'rect'">
+                    <div class="points points-l30" data-index="0"></div>
+                  </template>
                 </div>
             </template>
             <div class="topo-frame-selection" :style="{width: frameSelectionDiv.width + 'px',height: frameSelectionDiv.height + 'px',top: frameSelectionDiv.top + 'px',left: frameSelectionDiv.left + 'px'}">
@@ -71,7 +76,7 @@
 
             <q-btn label="当前数据" color="primary" size="xs" style="margin-left:100px;height:30px;margin-top:5px;" @click="printData" />
         </div>
-        <div style="position:absolute;right: 10px;top: 0px;" class="row">                            
+        <div style="position:absolute;right: 10px;top: 0px;" class="row">
             <div style="line-height:40px;height:40px;padding: 0px 5px;">
                 缩放
             </div>
@@ -85,7 +90,7 @@
                 snap
                 style="width:200px;"
                 />
-        </div>                        
+        </div>
     </div>
 </div>
 </template>
@@ -110,7 +115,7 @@ import { mapActions, mapGetters, mapState, mapMutations } from 'vuex'
 export default {
     name: 'TopoMain',
     extends: TopoBase,
-    components: {        
+    components: {
         VueRulerTool
     },
     props: [],
@@ -121,7 +126,7 @@ export default {
             configData: state => state.topoEditor.topoData,
             selectedIsLayer: state => state.topoEditor.selectedIsLayer,
             copySrcItems: state => state.topoEditor.copySrcItems,
-            copyCount: state => state.topoEditor.copyCount,            
+            copyCount: state => state.topoEditor.copyCount,
         }),
         layerStyle:function () {
             var scale = this.selectedValue / 100;
@@ -155,7 +160,7 @@ export default {
                 y: 0,
                 w: 0,
                 h: 0,
-            }, //resize组件 相关变量  
+            }, //resize组件 相关变量
             frameSelectionDiv: {
                 width: 0,
                 height: 0,
@@ -163,9 +168,9 @@ export default {
                 left: 10,
                 startX: 0,
                 startY: 0,
-                startPageX: 0,                
+                startPageX: 0,
                 startPageY: 0,
-            },          
+            },
             flag: '', //当前操作标志位
             curControl: null,
             curIndex: -1,
@@ -189,14 +194,14 @@ export default {
             'loadDefaultTopoData'
         ]),
         controlMousedown(component,event,index) {
-            if(event.ctrlKey) {                
+            if(event.ctrlKey) {
                 return;
             }
             this.flag = 'move';
             this.curControl = component;
             this.clickItem(component,index);
             this.moveItem.startX = event.pageX;
-            this.moveItem.startY = event.pageY; 
+            this.moveItem.startY = event.pageY;
             //记录初始信息--move
             for(var key in this.selectedComponentMap) {
                 var component = this.selectedComponentMap[key];
@@ -204,7 +209,7 @@ export default {
                 component.style.temp.position = {};
                 component.style.temp.position.x = component.style.position.x;
                 component.style.temp.position.y = component.style.position.y;
-            }         
+            }
         },
         resizeMousedown(component,$event,index,flag) {//resize-鼠标按下事件
             this.flag = flag;
@@ -218,7 +223,7 @@ export default {
             this.resizeItem.x = this.curControl.style.position.x;
             this.resizeItem.y = this.curControl.style.position.y;
             this.resizeItem.w = this.curControl.style.position.w;
-            this.resizeItem.h = this.curControl.style.position.h;            
+            this.resizeItem.h = this.curControl.style.position.h;
         },
         onLayerMousemove(event) {
             if(event.which != 1) {
@@ -240,7 +245,7 @@ export default {
                     case 'resize-lc':
                         this.curControl.style.position.x = this.resizeItem.x + dx;
                         dy = 0;
-                        dx = -dx;                        
+                        dx = -dx;
                         break;
                     case 'resize-lb':
                         this.curControl.style.position.x = this.resizeItem.x + dx;
@@ -248,20 +253,20 @@ export default {
                         break;
                     case 'resize-rt':
                         this.curControl.style.position.y = this.resizeItem.y + dy;
-                        dy = -dy;                        
+                        dy = -dy;
                         break;
                     case 'resize-rc':
                         dy = 0;
                         break;
-                    case 'resize-rb':                        
+                    case 'resize-rb':
                         break;
                     case 'resize-ct':
                         this.curControl.style.position.y = this.resizeItem.y + dy;
                         dx = 0;
-                        dy = -dy;                        
+                        dy = -dy;
                         break;
                     case 'resize-cb':
-                        dx = 0;                        
+                        dx = 0;
                         break;
                 }
                 if((this.resizeItem.w + dx) > 20) {
@@ -286,12 +291,47 @@ export default {
                     component.style.position.x = component.style.temp.position.x + dx;
                     component.style.position.y = component.style.temp.position.y + dy;
                 }
+              // 选中组件数大于1，不进行可吸附判断
+              if (this.selectedComponents.length > 1) return
+              // 选中组件类型不为line，不进行可吸附判断
+              let selectedComponentType = this.selectedComponentMap[this.selectedComponents[0]].type
+              if (selectedComponentType !== 'line') return
+              // 可吸附点
+              let xiFuPoints = [...document.querySelectorAll('.points')]
+              console.log(xiFuPoints, '吸附点吸附点')
+              // console.log(xiFuPoints)
+              // 被选中组件
+              const selectedView = document.querySelector(".topo-layer-view-selected")
+              // 被选中组件的左中，右中，这两个点
+              const points = [selectedView.children[2], selectedView.children[5]]
+              // console.log(points)
+              // 被选中组件的位置数据信息
+              const position = this.selectedComponentMap[this.selectedComponents[0]].style.position
+              console.log('连接点信息', this.selectedComponents[0])
+              // console.log(position, '被选中组件的位置数据信息')
+              // 被选中组件右边点位置数据信息
+              const pointRight = this.getNodeRelativePosition(points[1])
+              xiFuPoints.some((item, index) => {
+                const pointIndex = parseInt(item.dataset.index)
+                console.log(pointIndex)
+                const pos = this.getNodeRelativePosition(item)
+                console.log(Math.abs(pointRight.left - pos.left), 'left相距')
+                if (Math.abs(pointRight.left - pos.left) <= 10 && Math.abs(pointRight.top - pos.top) <= 10) {
+                  // console.log("可吸附了")
+                  // 设置当前选中的组件的位置
+                  position.x = pos.left - position.w + Math.ceil(pos.width / 2)
+                  position.y = pos.top - Math.ceil(position.h / 2) + Math.ceil(pos.height / 2)
+                  return true
+                }
+              })
+
+
             } else if(this.flag == 'frame_selection') {
-                this.onFrameSelection(event);                                
-            }            
+                this.onFrameSelection(event);
+            }
         },
         onLayerMouseup(event) {
-            if(this.flag.startsWith('resize')) {                
+            if(this.flag.startsWith('resize')) {
                 var a = this.$refs['comp' + this.curIndex][0];
                 a.onResize();
             } else if(this.flag == 'frame_selection') {
@@ -302,23 +342,23 @@ export default {
                 this.frameSelectionDiv.top = 0;
                 this.frameSelectionDiv.left = 0;
             } else if(this.flag == 'move') {
-                //鼠标move只是方便用户预览，真正执行应该用命令，所以要先恢复                
+                //鼠标move只是方便用户预览，真正执行应该用命令，所以要先恢复
                 var dx = event.pageX - this.moveItem.startX;
                 var dy = event.pageY - this.moveItem.startY;
                 for(var key in this.selectedComponentMap) {
                     var component = this.selectedComponentMap[key];
                     component.style.position.x = component.style.position.x - dx;
                     component.style.position.y = component.style.position.y - dy;
-                }                
+                }
                 this.execute({
                     op: 'move',
                     dx: dx,
                     dy: dy,
-                    items: this.selectedComponentMap                                        
+                    items: this.selectedComponentMap
                 });
             }
             this.flag = '';
-        },     
+        },
         onLayerMousedown($event) {
             this.flag = 'frame_selection';
             this.frameSelectionDiv.startX = event.offsetX;
@@ -327,15 +367,15 @@ export default {
             this.frameSelectionDiv.startPageY = event.pageY;
         },
         onLayerClick() {
-            // this.clearSelectedComponent(); 
-            // this.setLayerSelected(true); 
+            // this.clearSelectedComponent();
+            // this.setLayerSelected(true);
         },
         onFrameSelection(event){
             var dx = event.pageX - this.frameSelectionDiv.startPageX;
-            var dy = event.pageY - this.frameSelectionDiv.startPageY;  
+            var dy = event.pageY - this.frameSelectionDiv.startPageY;
             this.frameSelectionDiv.width = Math.abs(dx);
-            this.frameSelectionDiv.height = Math.abs(dy);              
-            if(dx > 0 && dy > 0) {            
+            this.frameSelectionDiv.height = Math.abs(dy);
+            if(dx > 0 && dy > 0) {
                 this.frameSelectionDiv.top = this.frameSelectionDiv.startY;
                 this.frameSelectionDiv.left = this.frameSelectionDiv.startX;
             } else if(dx > 0 && dy < 0) {
@@ -369,15 +409,15 @@ export default {
                 } else {
                     _this.removeSelectedComponent(component);
                 }
-            });            
+            });
             if(this.selectedComponents.length > 0) {
                 this.setLayerSelected(false);
             } else {
                 this.setLayerSelected(true);
             }
-        }, 
+        },
         onDrop(event) {
-            event.preventDefault();        
+            event.preventDefault();
             var infoJson = event.dataTransfer.getData('my-info');
             var component = JSON.parse(infoJson);
             if(this.checkAddComponent(component) == false) {
@@ -386,7 +426,7 @@ export default {
             //判断当前着陆点是不是layer
             if(event.target.id == "surface-edit-layer") {
                 component.style.position.x = event.offsetX;
-                component.style.position.y = event.offsetY; 
+                component.style.position.y = event.offsetY;
             } else {
                 //解决着陆灯不是layer的情形
                 var layer = event.currentTarget;
@@ -394,13 +434,13 @@ export default {
                 var x = event.clientX - position.left;
                 var y = event.clientY - position.top;
                 component.style.position.x = x;
-                component.style.position.y = y; 
+                component.style.position.y = y;
             }
             //处理默认值
             this.execute({
                 op: 'add',
                 component: component
-            });                                               
+            });
             //默认选中，并点击
             this.clickItem(component,this.configData.components.length - 1);
         },
@@ -419,7 +459,7 @@ export default {
                 op: 'move',
                 dx: dx,
                 dy: dy,
-                items: this.selectedComponentMap                                        
+                items: this.selectedComponentMap
             });
         },
         checkAddComponent(info){
@@ -455,18 +495,18 @@ export default {
             } else {
                 //这里不再处理点击事件，改为鼠标左键
                 //this.clickItem(component,index);
-            }                       
+            }
         },
-        copyItem(){ // 设定复制源 
-            var items = []; 
-            for(var key in this.selectedComponentMap) {                
-                var item = deepCopy(this.selectedComponentMap[key]); 
+        copyItem(){ // 设定复制源
+            var items = [];
+            for(var key in this.selectedComponentMap) {
+                var item = deepCopy(this.selectedComponentMap[key]);
                 items.push(item);
-            }          
+            }
             this.setCopySrcItems(items);
         },
         pasteItem() {
-            if(this.copySrcItems && this.copySrcItems.length > 0) {                
+            if(this.copySrcItems && this.copySrcItems.length > 0) {
                 this.execute({
                     op: 'copy-add',
                     items: this.copySrcItems,
@@ -478,8 +518,8 @@ export default {
                 op: 'del',
                 index: index
             });
-            this.setLayerSelected(true);  
-        },        
+            this.setLayerSelected(true);
+        },
         fullScreen() {
             localStorage.setItem('topoData',JSON.stringify(this.configData));
             let {href} = this.$router.resolve({
@@ -489,7 +529,7 @@ export default {
                    sceneId: this.sceneId,
                    sceneName: this.sceneName
                },
-               params: { 
+               params: {
                    sceneId: this.sceneId,
                    sceneName: this.sceneName
                }
@@ -500,7 +540,26 @@ export default {
             var json = JSON.stringify(this.configData);
             console.log(json);
             alert(json);
-        }        
+        },
+      // 获取某元素的相对位置信息
+      getNodeRelativePosition(node) {
+        let {
+          top,
+          height,
+          bottom,
+          left,
+          width,
+          right,
+        } = node.getBoundingClientRect()
+
+        const topoLayer = document.getElementById('surface-edit-layer').getBoundingClientRect()
+
+        left -= topoLayer.left
+        top -= topoLayer.top
+        right -= topoLayer.left
+        bottom -= topoLayer.top
+        return { top, height, bottom, left, width, right }
+      },
     },
     mounted() {
         this.loadDefaultTopoData();
@@ -511,7 +570,7 @@ export default {
 <style lang="scss">
 .topo-main {
     background-color: white;
-    border: #ccc solid 1px;    
+    border: #ccc solid 1px;
     position: relative;
     overflow-x: hidden;
     overflow-y: hidden;
@@ -528,9 +587,9 @@ export default {
         // background-repeat: no-repeat;
         // background-size: 100% 100%;
 
-        background-image: 
-        linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), 
-        linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc); 
+        background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc),
+        linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc);
         background-size: 20px 20px;
         background-position: 0 0, 10px 10px;
 
@@ -538,8 +597,8 @@ export default {
             background-color: #8787e7;
             opacity: 0.3;
             border: #0000ff solid 1px;
-            position: absolute;   
-            z-index: 999;         
+            position: absolute;
+            z-index: 999;
         }
 
         .topo-layer-view {
@@ -641,6 +700,18 @@ export default {
                 margin-left: -5px;
                 cursor: ns-resize;
             }
+
+
+          .points {
+            position: absolute;
+            height: 10px;
+            width: 10px;
+            background-color: red;
+          }
+          .points-l30 {
+            left: -5px;
+            top: 30%;
+          }
         }
 
         .topo-layer-view-selected {
